@@ -5,7 +5,33 @@
             "label": "Run Home Assistant on port 8123",
             "type": "shell",
             "command": "scripts/develop",
-            "problemMatcher": []
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "python",
+                "source": "python",
+                "fileLocation": "autoDetect",
+                "pattern": [
+                    {
+                        "regexp": "^.*File \\\"([^\\\"]|.*)\\\", line (\\d+).*",
+                        "file": 1,
+                        "line": 2,
+                        "severity": 4,
+                        "message": 5
+                    },
+                    {
+                        "regexp": "^.*raise.*$"
+                    },
+                    {
+                        "regexp": "^\\s*(.*)\\s*$",
+                        "message": 1
+                    }
+                ],
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^.*Setting up debugger: {'debugpy'}$",
+                    "endsPattern": "^.*Listening for remote debug connection on 0.0.0.0:5678$"
+                }
+            }
         }
     ]
 }

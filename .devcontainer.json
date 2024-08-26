@@ -1,14 +1,18 @@
 {
-    "name": "ludeeus/integration_blueprint",
+    "name": "ha-midas-devenv",
     "image": "mcr.microsoft.com/devcontainers/python:3.12",
     "postCreateCommand": "scripts/setup",
     "forwardPorts": [
-        8123
+        8123,
+        5678
     ],
     "portsAttributes": {
         "8123": {
             "label": "Home Assistant",
             "onAutoForward": "notify"
+        },
+        "5678": {
+            "label": "Python Debugger"
         }
     },
     "customizations": {

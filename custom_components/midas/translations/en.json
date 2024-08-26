@@ -1,0 +1,36 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "description": "Please enter your MIDAS username and password. If you need to create an account please use the `midas.register` service.",
+                "data": {
+                    "username": "Username",
+                    "password": "Password"
+                }
+            },
+            "options": {
+                "title": "Rates",
+                "description": "On many California electricity bills there is an \"RIN\" QR Code, scanning that code will give you a 16 character (plus dashes) code.",
+                "data": {
+                    "rate_ids": "Rate ID (RID)"
+                },
+                "data_description": {
+                    "rate_ids": "Enter one or more RIDs to get energy prices for"
+                }
+            }
+        },
+        "error": {
+            "auth": "Username/Password is wrong.",
+            "connection": "Unable to connect to the server.",
+            "unknown": "Unknown error occurred.",
+            "rateid_invalid": "Rate ID not in valid format (XXXX-XXXX-XXXX-XXXX)"
+        }
+    },
+    "entity": {
+        "sensor": {
+            "current": {
+                "name": "Current Energy Price"
+            }
+        }
+    }
+}

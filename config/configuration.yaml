@@ -1,12 +1,19 @@
 # https://www.home-assistant.io/integrations/default_config/
-default_config:
+#default_config: # omitting the things that aren't needed and take forever to boot locally
+config:
+energy:
+logbook:
+
 
 # https://www.home-assistant.io/integrations/homeassistant/
 homeassistant:
   debug: true
 
+# https://www.home-assistant.io/integrations/debugpy/
+debugpy:
+
 # https://www.home-assistant.io/integrations/logger/
 logger:
   default: info
   logs:
-    custom_components.integration_blueprint: debug
+    custom_components.midas: debug

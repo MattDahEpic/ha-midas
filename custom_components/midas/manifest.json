@@ -1,0 +1,12 @@
+{
+  "domain": "midas",
+  "name": "MIDAS",
+  "codeowners": [
+    "@mattdahepic"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/MattDahEpic/ha-midas",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/MattDahEpic/ha-midas/issues",
+  "version": "0.0.1"
+}
