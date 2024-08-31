@@ -1,4 +1,4 @@
-"""Sensor platform for integration_blueprint."""  # noqa: EXE002
+"""Sensor platform for integration_blueprint."""
 
 from __future__ import annotations
 

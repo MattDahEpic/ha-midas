@@ -1,4 +1,4 @@
-"""Midas API Client."""  # noqa: EXE002
+"""Midas API Client."""
 
 from __future__ import annotations
 

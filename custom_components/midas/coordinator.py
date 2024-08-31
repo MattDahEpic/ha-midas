@@ -5,8 +5,8 @@ from __future__ import annotations
 from datetime import timedelta
 from typing import TYPE_CHECKING, Any
 
-from california_midasapi.types import RateInfo
 from california_midasapi.exception import MidasAuthenticationError, MidasClientError
+from california_midasapi.types import RateInfo
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 

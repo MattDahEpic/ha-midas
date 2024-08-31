@@ -1,4 +1,4 @@
-"""Custom types for integration_blueprint."""  # noqa: EXE002
+"""Custom types for integration_blueprint."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""Constants for midas."""  # noqa: EXE002
+"""Constants for midas."""
 
 from logging import Logger, getLogger
 

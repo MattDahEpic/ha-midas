@@ -1,4 +1,4 @@
-"""Config flows for MIDAS."""  # noqa: EXE002
+"""Config flows for MIDAS."""
 
 from __future__ import annotations
 
