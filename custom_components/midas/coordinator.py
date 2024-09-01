@@ -48,6 +48,9 @@ class MidasDataUpdateCoordinator(DataUpdateCoordinator[dict[str, RateInfo]]):
         try:
             for rid in self.config_entry.runtime_data.rate_ids:
                 data[rid] = await self._client.async_get_rate_data(rid)
+                # Call GetCurrentTariffs to cache parsed start and end times
+                # Makes getting the active tariffs for each sensor much faster
+                data[rid].GetCurrentTariffs()
         except MidasAuthenticationException as exception:
             raise ConfigEntryAuthFailed(exception) from exception
         except MidasException as exception:

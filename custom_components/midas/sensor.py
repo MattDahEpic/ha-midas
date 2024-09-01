@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 
 from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
@@ -13,20 +15,47 @@ from .const import ATTRIBUTION, DOMAIN
 from .coordinator import MidasDataUpdateCoordinator
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from california_midasapi.types import RateInfo
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
+    from homeassistant.helpers.typing import StateType
 
     from .data import IntegrationMidasConfigEntry
 
 
+@dataclass(frozen=True, kw_only=True)
+class MidasSensorEntityDescription(SensorEntityDescription):
+    """Describes MIDAS sensors."""
+
+    value_fn: Callable[[RateInfo], StateType]
+
+
 # Each of these sensors is created for every configured rate id
-SENSOR_DESCRIPTIONS: tuple[SensorEntityDescription, ...] = (
-    SensorEntityDescription(
+SENSOR_DESCRIPTIONS: tuple[MidasSensorEntityDescription, ...] = (
+    MidasSensorEntityDescription(
         key="current",
         translation_key="current",
         icon="mdi:electric_meter",
+        value_fn=lambda rate: rate.GetCurrentTariffs()[0].value,
     ),
-    # TODO sensors for next 15 minutes, next hour
+    MidasSensorEntityDescription(
+        key="15min",
+        translation_key="15min",
+        icon="mdi:electric_meter",
+        value_fn=lambda rate: rate.GetActiveTariffs(
+            datetime.now() + timedelta(minutes=15)
+        )[0].value,
+    ),
+    MidasSensorEntityDescription(
+        key="1hour",
+        translation_key="1hour",
+        icon="mdi:electric_meter",
+        value_fn=lambda rate: rate.GetActiveTariffs(
+            datetime.now() + timedelta(hours=1)
+        )[0].value,
+    ),
 )
 
 
@@ -57,10 +86,12 @@ class MidasPriceSensor(CoordinatorEntity[MidasDataUpdateCoordinator], SensorEnti
     _attr_suggested_display_precision = 4
     _attr_attribution = ATTRIBUTION
 
+    entity_description: MidasSensorEntityDescription
+
     def __init__(
         self,
         coordinator: MidasDataUpdateCoordinator,
-        description: SensorEntityDescription,
+        description: MidasSensorEntityDescription,
         rate_id: str,
     ) -> None:
         """Initialize the sensor class."""
@@ -73,7 +104,7 @@ class MidasPriceSensor(CoordinatorEntity[MidasDataUpdateCoordinator], SensorEnti
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, self._rate_id)},
             name=self._rate_id,
-            manufacturer="MIDAS",
+            manufacturer=None,
             model=None,
             entry_type=DeviceEntryType.SERVICE,
         )
@@ -81,4 +112,6 @@ class MidasPriceSensor(CoordinatorEntity[MidasDataUpdateCoordinator], SensorEnti
     @property
     def native_value(self) -> str | None:
         """Return the native value of the sensor."""
-        return str(self.coordinator.data[self._rate_id].GetCurrentTariffs()[0].value)
+        return str(
+            self.entity_description.value_fn(self.coordinator.data[self._rate_id])
+        )

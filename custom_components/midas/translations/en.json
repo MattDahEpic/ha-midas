@@ -60,6 +60,12 @@
         "sensor": {
             "current": {
                 "name": "Current Energy Price"
+            },
+            "15min": {
+                "name": "Future Energy Price: 15 minutes"
+            },
+            "1hour": {
+                "name": "Future Energy Price: 1 hour"
             }
         }
     }
