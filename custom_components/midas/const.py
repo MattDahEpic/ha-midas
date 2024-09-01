@@ -3,7 +3,13 @@
 from logging import Logger, getLogger
 
 import voluptuous as vol
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, Platform
+from homeassistant.const import (
+    CONF_EMAIL,
+    CONF_NAME,
+    CONF_PASSWORD,
+    CONF_USERNAME,
+    Platform,
+)
 from homeassistant.helpers import selector
 
 LOGGER: Logger = getLogger(__package__)
@@ -20,7 +26,32 @@ PLATFORMS: list[Platform] = [
 CONF_RATEIDS = "rate_ids"
 
 # Config schemas
-CONFIG_SCHEMA_CREDENTIALS = vol.Schema(
+CONFIG_SCHEMA_REGISTER = vol.Schema(
+    {
+        vol.Required(CONF_USERNAME): selector.TextSelector(
+            selector.TextSelectorConfig(
+                type=selector.TextSelectorType.TEXT,
+            ),
+        ),
+        vol.Required(CONF_PASSWORD): selector.TextSelector(
+            selector.TextSelectorConfig(
+                type=selector.TextSelectorType.PASSWORD,
+            ),
+        ),
+        vol.Required(CONF_EMAIL): selector.TextSelector(
+            selector.TextSelectorConfig(
+                type=selector.TextSelectorType.TEXT,
+            ),
+        ),
+        vol.Required(CONF_NAME): selector.TextSelector(
+            selector.TextSelectorConfig(
+                type=selector.TextSelectorType.TEXT,
+            ),
+        ),
+    }
+)
+
+CONFIG_SCHEMA_AUTH = vol.Schema(
     {
         vol.Required(CONF_USERNAME): selector.TextSelector(
             selector.TextSelectorConfig(

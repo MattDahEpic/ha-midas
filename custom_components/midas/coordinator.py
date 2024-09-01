@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import timedelta
 from typing import TYPE_CHECKING, Any
 
-from california_midasapi.exception import MidasAuthenticationError, MidasClientError
+from california_midasapi.exception import MidasAuthenticationException, MidasException
 from california_midasapi.types import RateInfo
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -44,12 +44,13 @@ class MidasDataUpdateCoordinator(DataUpdateCoordinator[dict[str, RateInfo]]):
 
     async def _async_update_data(self) -> Any:
         """Update data via library."""
+        data: dict[str, RateInfo] = {}
         try:
-            data: dict[str, RateInfo] = {}
             for rid in self.config_entry.runtime_data.rate_ids:
                 data[rid] = await self._client.async_get_rate_data(rid)
-            return data
-        except MidasAuthenticationError as exception:
+        except MidasAuthenticationException as exception:
             raise ConfigEntryAuthFailed(exception) from exception
-        except MidasClientError as exception:
+        except MidasException as exception:
             raise UpdateFailed(exception) from exception
+        else:
+            return data

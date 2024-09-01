@@ -1,6 +1,6 @@
 {
   "domain": "midas",
-  "name": "MIDAS",
+  "name": "MIDAS (California Energy Prices)",
   "codeowners": [
     "@mattdahepic"
   ],

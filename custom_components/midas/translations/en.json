@@ -2,7 +2,35 @@
     "config": {
         "step": {
             "user": {
-                "description": "Please enter your MIDAS username and password. If you need to create an account please use the `midas.register` service.",
+                "description": "Do you have a MIDAS account? It is not your electricity account. There is no website to create one so if you have one already you likely created it here.",
+                "menu_options": {
+                    "auth": "Yes, I have a MIDAS account.",
+                    "register": "No, I need to create a MIDAS account."
+                }
+            },
+            "register": {
+                "title": "MIDAS Registration",
+                "description": "There is no website to create a MIDAS account so this integration allows you to create an account with this form. Please pay attention to the text below each field.",
+                "data": {
+                    "username": "Username",
+                    "password": "Password",
+                    "email": "Email",
+                    "name": "Full Name"
+                },
+                "data_description": {
+                    "username": "The username for the account being created. Must be globally unique and is not case sensitive.",
+                    "password": "The password for the account being created. USE A UNIQUE PASSWORD, IT CANNOT BE CHANGED. 15 or more characters, requires an uppercase and lowercase letter, a number, and a special character.",
+                    "email": "The email for the account being created. Has to be able to receive an email with an activation link.",
+                    "name": "The name of the user for the account being created. Not used for anything but is required by the API."
+                }
+            },
+            "register_result": {
+                "title": "MIDAS Registration Success",
+                "description": "Your account has been created successfully. \nAn email has been sent to the provided email, please click the link in the email to activate your account before proceeding."
+            },
+            "auth": {
+                "title": "MIDAS Authentication",
+                "description": "Please enter your MIDAS username and password.",
                 "data": {
                     "username": "Username",
                     "password": "Password"
@@ -20,10 +48,12 @@
             }
         },
         "error": {
+            "error_with_detail": "{error_detail}",
             "auth": "Username/Password is wrong.",
             "connection": "Unable to connect to the server.",
-            "unknown": "Unknown error occurred.",
-            "rateid_invalid": "Rate ID not in valid format (XXXX-XXXX-XXXX-XXXX)"
+            "unknown": "Unknown error occurred. Check the logs for more details.",
+            "rateid_invalid": "Rate ID not in valid format (XXXX-XXXX-XXXX-XXXX)",
+            "registration_invalid": "All fields are required."
         }
     },
     "entity": {
