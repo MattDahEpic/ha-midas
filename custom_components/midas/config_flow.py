@@ -33,7 +33,7 @@ if TYPE_CHECKING:
 
 
 class MidasFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
-    """Config flow for Blueprint."""
+    """Config flow for MIDAS."""
 
     VERSION = 1
 

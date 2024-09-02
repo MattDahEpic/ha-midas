@@ -1,4 +1,4 @@
-"""Sensor platform for integration_blueprint."""
+"""Sensor platform for the MIDAS integration."""
 
 from __future__ import annotations
 
@@ -83,7 +83,7 @@ class MidasPriceSensor(CoordinatorEntity[MidasDataUpdateCoordinator], SensorEnti
 
     _attr_has_entity_name = True
     _attr_device_class = SensorDeviceClass.MONETARY
-    _attr_suggested_display_precision = 4
+    _attr_suggested_display_precision = 5
     _attr_attribution = ATTRIBUTION
 
     entity_description: MidasSensorEntityDescription
@@ -115,3 +115,10 @@ class MidasPriceSensor(CoordinatorEntity[MidasDataUpdateCoordinator], SensorEnti
         return str(
             self.entity_description.value_fn(self.coordinator.data[self._rate_id])
         )
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any] | None:
+        """Extra data for the sensor."""
+        # TODO extra sensor data
+        # tariff name: currentTariff.ValueName
+        #
