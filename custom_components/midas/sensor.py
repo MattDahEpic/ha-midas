@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
 from homeassistant.components.sensor.const import SensorDeviceClass
@@ -17,19 +17,25 @@ from .coordinator import MidasDataUpdateCoordinator
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from california_midasapi.types import RateInfo
+    from california_midasapi.types import RateInfo, ValueInfoItem
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
-    from homeassistant.helpers.typing import StateType
 
     from .data import IntegrationMidasConfigEntry
+
+DATA_RATE_NAME = "rate_name"
+DATA_RATE_TYPE = "rate_type"
+DATA_RATE_URL = "rate_url"
+DATA_TARIFF_NAME = "tariff_name"
+DATA_START_TIME = "start_time"
+DATA_END_TIME = "end_time"
 
 
 @dataclass(frozen=True, kw_only=True)
 class MidasSensorEntityDescription(SensorEntityDescription):
     """Describes MIDAS sensors."""
 
-    value_fn: Callable[[RateInfo], StateType]
+    rate_fn: Callable[[RateInfo], ValueInfoItem]
 
 
 # Each of these sensors is created for every configured rate id
@@ -38,23 +44,23 @@ SENSOR_DESCRIPTIONS: tuple[MidasSensorEntityDescription, ...] = (
         key="current",
         translation_key="current",
         icon="mdi:electric_meter",
-        value_fn=lambda rate: rate.GetCurrentTariffs()[0].value,
+        rate_fn=lambda rate: rate.GetCurrentTariffs()[0],
     ),
     MidasSensorEntityDescription(
         key="15min",
         translation_key="15min",
         icon="mdi:electric_meter",
-        value_fn=lambda rate: rate.GetActiveTariffs(
+        rate_fn=lambda rate: rate.GetActiveTariffs(
             datetime.now() + timedelta(minutes=15)  # noqa: DTZ005
-        )[0].value,
+        )[0],
     ),
     MidasSensorEntityDescription(
         key="1hour",
         translation_key="1hour",
         icon="mdi:electric_meter",
-        value_fn=lambda rate: rate.GetActiveTariffs(
+        rate_fn=lambda rate: rate.GetActiveTariffs(
             datetime.now() + timedelta(hours=1)  # noqa: DTZ005
-        )[0].value,
+        )[0],
     ),
 )
 
@@ -114,12 +120,19 @@ class MidasPriceSensor(CoordinatorEntity[MidasDataUpdateCoordinator], SensorEnti
     def native_value(self) -> str | None:
         """Return the native value of the sensor."""
         return str(
-            self.entity_description.value_fn(self.coordinator.data[self._rate_id])
+            self.entity_description.rate_fn(self.coordinator.data[self._rate_id]).value
         )
 
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
         """Extra data for the sensor."""
-        # TODO extra sensor data
-        # tariff name: currentTariff.ValueName
-        #
+        rate = self.coordinator.data[self._rate_id]
+        tariff = self.entity_description.rate_fn(rate)
+        return {
+            DATA_RATE_NAME: rate.RateName,
+            DATA_RATE_TYPE: rate.RateType,
+            DATA_RATE_URL: rate.RatePlan_Url,
+            DATA_TARIFF_NAME: tariff.ValueName,
+            DATA_START_TIME: tariff.GetStart(),
+            DATA_END_TIME: tariff.GetEnd(),
+        }
