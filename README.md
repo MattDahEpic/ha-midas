@@ -7,7 +7,7 @@ If your electric bill has a **RIN QR Code** on it, you can use this integration 
 
 ## Installation
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=MattDahEpic&repository=ha-midas)
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=MattDahEpic&repository=ha-midas&category=Integration)
 
 To install this integration, add this GitHub Repo to the HACS Custom Repositories, or click the badge above.
 
