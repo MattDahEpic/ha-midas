@@ -88,8 +88,7 @@ class MidasPriceSensor(CoordinatorEntity[MidasDataUpdateCoordinator], SensorEnti
     """MIDAS Price Sensor class."""
 
     _attr_has_entity_name = True
-    _attr_device_class = SensorDeviceClass.MONETARY
-    _attr_suggested_unit_of_measurement = "USD"
+    _attr_native_unit_of_measurement = "USD/kWh"
     _attr_suggested_display_precision = 5
     _attr_attribution = ATTRIBUTION
 
