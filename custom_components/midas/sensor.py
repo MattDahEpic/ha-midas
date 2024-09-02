@@ -45,7 +45,7 @@ SENSOR_DESCRIPTIONS: tuple[MidasSensorEntityDescription, ...] = (
         translation_key="15min",
         icon="mdi:electric_meter",
         value_fn=lambda rate: rate.GetActiveTariffs(
-            datetime.now() + timedelta(minutes=15)
+            datetime.now() + timedelta(minutes=15)  # noqa: DTZ005
         )[0].value,
     ),
     MidasSensorEntityDescription(
@@ -53,7 +53,7 @@ SENSOR_DESCRIPTIONS: tuple[MidasSensorEntityDescription, ...] = (
         translation_key="1hour",
         icon="mdi:electric_meter",
         value_fn=lambda rate: rate.GetActiveTariffs(
-            datetime.now() + timedelta(hours=1)
+            datetime.now() + timedelta(hours=1)  # noqa: DTZ005
         )[0].value,
     ),
 )
