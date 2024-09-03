@@ -40,10 +40,10 @@
                 "title": "Rates",
                 "description": "On many California electricity bills there is an \"RIN\" QR Code, scanning that code will give you a 16 character (plus dashes) code.",
                 "data": {
-                    "rate_ids": "Rate ID (RID)"
+                    "rate_ids": "Rate Identification Number (RIN)"
                 },
                 "data_description": {
-                    "rate_ids": "Enter one or more RIDs to get energy prices for"
+                    "rate_ids": "Enter one or more RINs to get energy prices for"
                 }
             }
         },
