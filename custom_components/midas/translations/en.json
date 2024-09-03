@@ -45,6 +45,16 @@
                 "data_description": {
                     "rate_ids": "Enter one or more RINs to get energy prices for"
                 }
+            },
+            "reconfigure": {
+                "title": "Reconfigure MIDAS",
+                "description": "On many California electricity bills there is an \"RIN\" QR Code, scanning that code will give you a 16 character (plus dashes) code.",
+                "data": {
+                    "rate_ids": "Rate Identification Number (RIN)"
+                },
+                "data_description": {
+                    "rate_ids": "Enter one or more RINs to get energy prices for"
+                }
             }
         },
         "error": {
@@ -54,6 +64,9 @@
             "unknown": "Unknown error occurred. Check the logs for more details.",
             "rateid_invalid": "Rate ID not in valid format (XXXX-XXXX-XXXX-XXXX)",
             "registration_invalid": "All fields are required."
+        },
+        "abort": {
+            "reconfigure_successful": "[%key:common::config_flow::abort::reconfigure_successful%]"
         }
     },
     "entity": {

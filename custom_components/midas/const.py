@@ -75,3 +75,13 @@ CONFIG_SCHEMA_OPTIONS = vol.Schema(
         )
     }
 )
+
+CONFIG_SCHEMA_RECONFIGURE = vol.Schema(
+    {
+        vol.Required(CONF_RATEIDS): selector.TextSelector(
+            selector.TextSelectorConfig(
+                type=selector.TextSelectorType.TEXT, multiple=True
+            )
+        )
+    }
+)

@@ -36,6 +36,10 @@ class MidasSensorEntityDescription(SensorEntityDescription):
 
     rate_fn: Callable[[RateInfo], ValueInfoItem]
 
+    def unique_id_fn(self, rate_id: str) -> str:
+        """Return a unique id for the entity."""
+        return f"{rate_id}_{self.key}"
+
 
 # Each of these sensors is created for every configured rate id
 SENSOR_DESCRIPTIONS: tuple[MidasSensorEntityDescription, ...] = (
@@ -104,7 +108,7 @@ class MidasPriceSensor(CoordinatorEntity[MidasDataUpdateCoordinator], SensorEnti
 
         self.entity_description = description
         self._rate_id = rate_id
-        self._attr_unique_id = f"{self._rate_id}_{description.key}"
+        self._attr_unique_id = description.unique_id_fn(self._rate_id)
 
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, self._rate_id)},
