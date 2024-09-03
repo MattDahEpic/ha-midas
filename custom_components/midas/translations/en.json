@@ -38,7 +38,7 @@
             },
             "options": {
                 "title": "Rates",
-                "description": "On many California electricity bills there is an \"RIN\" QR Code, scanning that code will give you a 16 character (plus dashes) code.",
+                "description": "On many California electricity bills there is an \"RIN\" QR Code, scanning that code will give you a 16 character (plus dashes) code. You may have more than one if you are a CCA customer.",
                 "data": {
                     "rate_ids": "Rate Identification Number (RIN)"
                 },
@@ -48,7 +48,7 @@
             },
             "reconfigure": {
                 "title": "Reconfigure MIDAS",
-                "description": "On many California electricity bills there is an \"RIN\" QR Code, scanning that code will give you a 16 character (plus dashes) code.",
+                "description": "On many California electricity bills there is an \"RIN\" QR Code, scanning that code will give you a 16 character (plus dashes) code. You may have more than one if you are a CCA customer.",
                 "data": {
                     "rate_ids": "Rate Identification Number (RIN)"
                 },
