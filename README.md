@@ -33,6 +33,12 @@ Configuration is done in the UI, please follow the steps below for guidance.
 These entities can be used in the Energy dashboard to set prices, in automations to help conserve energy when prices will increase soon, and more!  
 ![Price entities being used in the Energy dashboard for price tracking](.pictures/energy-dashboard-usage.png)
 
+## Setup recommendations
+I recommend placing the MIDAS price entities inside a "Combine the state of several sensors" helper. This can help resolve the following issues and make your steup more resilient:
+* If you're a Community Choice Aggregation (CCA) customer you have 2 RINs. Combine them with a Sum type to get a single entity that has your true per-kWh cost.
+* If you ever change your electricity plan, like moving from one time-of-use plan to another or buying an electric vehicle or solar panels, placing your price sensors inside a helper will let you keep your energy dashboard history and replace the source sensor when your plan updates.
+* Your electricity company can update your RIN at any time even if the amount you actually pay stays the same. If that happens, you'll need to update which RINs this integration provides which may cause the loss of the old rate's data.
+
 ## Contributions are welcome!
 
 If you want to contribute to this please read the [Contribution guidelines](CONTRIBUTING.md)
