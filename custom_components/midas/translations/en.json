@@ -66,7 +66,7 @@
             "registration_invalid": "All fields are required."
         },
         "abort": {
-            "reconfigure_successful": "[%key:common::config_flow::abort::reconfigure_successful%]"
+            "reconfigure_successful": "MIDAS configuration saved successfully!"
         }
     },
     "entity": {
