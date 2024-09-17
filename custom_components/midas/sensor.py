@@ -34,7 +34,14 @@ DATA_END_TIME = "end_time"
 class MidasSensorEntityDescription(SensorEntityDescription):
     """Describes MIDAS sensors."""
 
-    rate_fn: Callable[[RateInfo], ValueInfoItem]
+    tariff_fn: Callable[[RateInfo], ValueInfoItem]
+    """Function to get the current tariff."""
+
+    value_fn: Callable[[RateInfo, ValueInfoItem], str] = lambda rate, tariff: str(  # noqa: ARG005
+        tariff.value
+    )
+    """Function to get the value of the sensor.
+    Receives the rate info and the current tariff."""
 
     def unique_id_fn(self, rate_id: str) -> str:
         """Return a unique id for the entity."""
@@ -47,23 +54,57 @@ SENSOR_DESCRIPTIONS: tuple[MidasSensorEntityDescription, ...] = (
         key="current",
         translation_key="current",
         icon="mdi:meter-electric",
-        rate_fn=lambda rate: rate.GetCurrentTariffs()[0],
+        native_unit_of_measurement="USD/kWh",
+        suggested_display_precision=5,
+        tariff_fn=lambda rate: rate.GetCurrentTariffs()[0],
+    ),
+    MidasSensorEntityDescription(
+        key="current_tariff_name",
+        translation_key="current_tariff_name",
+        icon="mdi:text",
+        entity_registry_enabled_default=False,
+        tariff_fn=lambda rate: rate.GetCurrentTariffs()[0],
+        value_fn=lambda _, tariff: tariff.ValueName,
     ),
     MidasSensorEntityDescription(
         key="15min",
         translation_key="15min",
         icon="mdi:meter-electric",
-        rate_fn=lambda rate: rate.GetActiveTariffs(
+        native_unit_of_measurement="USD/kWh",
+        suggested_display_precision=5,
+        tariff_fn=lambda rate: rate.GetActiveTariffs(
             datetime.now() + timedelta(minutes=15)  # noqa: DTZ005
         )[0],
+    ),
+    MidasSensorEntityDescription(
+        key="15min_tariff_name",
+        translation_key="15min_tariff_name",
+        icon="mdi:text",
+        entity_registry_enabled_default=False,
+        tariff_fn=lambda rate: rate.GetActiveTariffs(
+            datetime.now() + timedelta(minutes=15)  # noqa: DTZ005
+        )[0],
+        value_fn=lambda _, tariff: tariff.ValueName,
     ),
     MidasSensorEntityDescription(
         key="1hour",
         translation_key="1hour",
         icon="mdi:meter-electric",
-        rate_fn=lambda rate: rate.GetActiveTariffs(
+        native_unit_of_measurement="USD/kWh",
+        suggested_display_precision=5,
+        tariff_fn=lambda rate: rate.GetActiveTariffs(
             datetime.now() + timedelta(hours=1)  # noqa: DTZ005
         )[0],
+    ),
+    MidasSensorEntityDescription(
+        key="1hour_tariff_name",
+        translation_key="1hour_tariff_name",
+        icon="mdi:text",
+        entity_registry_enabled_default=False,
+        tariff_fn=lambda rate: rate.GetActiveTariffs(
+            datetime.now() + timedelta(hours=1)  # noqa: DTZ005
+        )[0],
+        value_fn=lambda _, tariff: tariff.ValueName,
     ),
 )
 
@@ -91,8 +132,6 @@ class MidasPriceSensor(CoordinatorEntity[MidasDataUpdateCoordinator], SensorEnti
     """MIDAS Price Sensor class."""
 
     _attr_has_entity_name = True
-    _attr_native_unit_of_measurement = "USD/kWh"
-    _attr_suggested_display_precision = 5
     _attr_attribution = ATTRIBUTION
 
     entity_description: MidasSensorEntityDescription
@@ -121,15 +160,15 @@ class MidasPriceSensor(CoordinatorEntity[MidasDataUpdateCoordinator], SensorEnti
     @property
     def native_value(self) -> str | None:
         """Return the native value of the sensor."""
-        return str(
-            self.entity_description.rate_fn(self.coordinator.data[self._rate_id]).value
-        )
+        rate = self.coordinator.data[self._rate_id]
+        tariff = self.entity_description.tariff_fn(rate)
+        return self.entity_description.value_fn(rate, tariff)
 
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
         """Extra data for the sensor."""
         rate = self.coordinator.data[self._rate_id]
-        tariff = self.entity_description.rate_fn(rate)
+        tariff = self.entity_description.tariff_fn(rate)
         return {
             DATA_RATE_NAME: rate.RateName,
             DATA_RATE_TYPE: rate.RateType,

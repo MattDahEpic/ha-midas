@@ -74,11 +74,20 @@
             "current": {
                 "name": "Current Energy Price"
             },
+            "current_tariff_name": {
+                "name": "Current Tariff Name"
+            },
             "15min": {
                 "name": "Future Energy Price: 15 minutes"
             },
+            "15min_tariff_name": {
+                "name": "Future Tariff Name: 15 minutes"
+            },
             "1hour": {
                 "name": "Future Energy Price: 1 hour"
+            },
+            "1hour_tariff_name": {
+                "name": "Future Tariff Name: 1 hour"
             }
         }
     }
