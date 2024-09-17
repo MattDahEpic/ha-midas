@@ -77,17 +77,35 @@
             "current_tariff_name": {
                 "name": "Current Tariff Name"
             },
+            "current_tariff_start": {
+                "name": "Current Tariff Start"
+            },
+            "current_tariff_end": {
+                "name": "Current Tariff End"
+            },
             "15min": {
                 "name": "Future Energy Price: 15 minutes"
             },
             "15min_tariff_name": {
                 "name": "Future Tariff Name: 15 minutes"
             },
+            "15min_tariff_start": {
+                "name": "Future Tariff Start: 15 minutes"
+            },
+            "15min_tariff_end": {
+                "name": "Future Tariff End: 15 minutes"
+            },
             "1hour": {
                 "name": "Future Energy Price: 1 hour"
             },
             "1hour_tariff_name": {
                 "name": "Future Tariff Name: 1 hour"
+            },
+            "1hour_tariff_start": {
+                "name": "Future Tariff Start: 1 hour"
+            },
+            "1hour_tariff_end": {
+                "name": "Future Tariff End: 1 hour"
             }
         }
     }

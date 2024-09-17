@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
+from homeassistant.components.sensor.const import SensorDeviceClass
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -15,10 +16,12 @@ from .coordinator import MidasDataUpdateCoordinator
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+    from decimal import Decimal
 
     from california_midasapi.types import RateInfo, ValueInfoItem
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
+    from homeassistant.helpers.typing import StateType
 
     from .data import IntegrationMidasConfigEntry
 
@@ -37,9 +40,9 @@ class MidasSensorEntityDescription(SensorEntityDescription):
     tariff_fn: Callable[[RateInfo], ValueInfoItem]
     """Function to get the current tariff."""
 
-    value_fn: Callable[[RateInfo, ValueInfoItem], str] = lambda rate, tariff: str(  # noqa: ARG005
-        tariff.value
-    )
+    value_fn: Callable[
+        [RateInfo, ValueInfoItem], StateType | date | datetime | Decimal
+    ] = lambda _, tariff: tariff.value
     """Function to get the value of the sensor.
     Receives the rate info and the current tariff."""
 
@@ -67,6 +70,24 @@ SENSOR_DESCRIPTIONS: tuple[MidasSensorEntityDescription, ...] = (
         value_fn=lambda _, tariff: tariff.ValueName,
     ),
     MidasSensorEntityDescription(
+        key="current_tariff_start",
+        translation_key="current_tariff_start",
+        icon="mdi:clock-start",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        entity_registry_enabled_default=False,
+        tariff_fn=lambda rate: rate.GetCurrentTariffs()[0],
+        value_fn=lambda _, tariff: tariff.GetStart(),
+    ),
+    MidasSensorEntityDescription(
+        key="current_tariff_end",
+        translation_key="current_tariff_end",
+        icon="mdi:clock-end",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        entity_registry_enabled_default=False,
+        tariff_fn=lambda rate: rate.GetCurrentTariffs()[0],
+        value_fn=lambda _, tariff: tariff.GetEnd(),
+    ),
+    MidasSensorEntityDescription(
         key="15min",
         translation_key="15min",
         icon="mdi:meter-electric",
@@ -87,6 +108,28 @@ SENSOR_DESCRIPTIONS: tuple[MidasSensorEntityDescription, ...] = (
         value_fn=lambda _, tariff: tariff.ValueName,
     ),
     MidasSensorEntityDescription(
+        key="15min_tariff_start",
+        translation_key="15min_tariff_start",
+        icon="mdi:clock-start",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        entity_registry_enabled_default=False,
+        tariff_fn=lambda rate: rate.GetActiveTariffs(
+            datetime.now() + timedelta(minutes=15)  # noqa: DTZ005
+        )[0],
+        value_fn=lambda _, tariff: tariff.GetStart(),
+    ),
+    MidasSensorEntityDescription(
+        key="15min_tariff_end",
+        translation_key="15min_tariff_end",
+        icon="mdi:clock-end",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        entity_registry_enabled_default=False,
+        tariff_fn=lambda rate: rate.GetActiveTariffs(
+            datetime.now() + timedelta(minutes=15)  # noqa: DTZ005
+        )[0],
+        value_fn=lambda _, tariff: tariff.GetEnd(),
+    ),
+    MidasSensorEntityDescription(
         key="1hour",
         translation_key="1hour",
         icon="mdi:meter-electric",
@@ -105,6 +148,28 @@ SENSOR_DESCRIPTIONS: tuple[MidasSensorEntityDescription, ...] = (
             datetime.now() + timedelta(hours=1)  # noqa: DTZ005
         )[0],
         value_fn=lambda _, tariff: tariff.ValueName,
+    ),
+    MidasSensorEntityDescription(
+        key="1hour_tariff_start",
+        translation_key="1hour_tariff_start",
+        icon="mdi:clock-start",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        entity_registry_enabled_default=False,
+        tariff_fn=lambda rate: rate.GetActiveTariffs(
+            datetime.now() + timedelta(hours=1)  # noqa: DTZ005
+        )[0],
+        value_fn=lambda _, tariff: tariff.GetStart(),
+    ),
+    MidasSensorEntityDescription(
+        key="1hour_tariff_end",
+        translation_key="1hour_tariff_end",
+        icon="mdi:clock-end",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        entity_registry_enabled_default=False,
+        tariff_fn=lambda rate: rate.GetActiveTariffs(
+            datetime.now() + timedelta(hours=1)  # noqa: DTZ005
+        )[0],
+        value_fn=lambda _, tariff: tariff.GetEnd(),
     ),
 )
 
@@ -158,7 +223,7 @@ class MidasPriceSensor(CoordinatorEntity[MidasDataUpdateCoordinator], SensorEnti
         )
 
     @property
-    def native_value(self) -> str | None:
+    def native_value(self) -> StateType | date | datetime | Decimal:
         """Return the native value of the sensor."""
         rate = self.coordinator.data[self._rate_id]
         tariff = self.entity_description.tariff_fn(rate)
