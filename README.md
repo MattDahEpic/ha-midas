@@ -32,6 +32,7 @@ Configuration is done in the UI, please follow the steps below for guidance.
 
 These entities can be used in the Energy dashboard to set prices, in automations to help conserve energy when prices will increase soon, and more!  
 ![Price entities being used in the Energy dashboard for price tracking](.pictures/energy-dashboard-usage.png)
+![Tariff name entity being used in an automation for taking actions when peak usage starts](.pictures/automation-usage.png)
 
 ## Setup recommendations
 I recommend placing the MIDAS price entities inside a "Combine the state of several sensors" helper. This can help resolve the following issues and make your steup more resilient:
@@ -43,10 +44,10 @@ I recommend placing the MIDAS price entities inside a "Combine the state of seve
 
 If you want to contribute to this please read the [Contribution guidelines](CONTRIBUTING.md)
 
-## About the logo
+<!-- ## About the logo
 The logo for this integration was created specifically for it because the MIDAS API itself does not have a logo. The California Energy Commission (CEC), the organization that runs MIDAS, use their logo to refer to the MIDAS API and require specific permission to use their logo anywhere outside of their website.
 
 The California outline is [Designed by Freepik](https://www.freepik.com/free-vector/flat-design-usa-states-outline-map_25000452.htm)
 The lightning bolt is from [FontAwesome](https://fontawesome.com/icons/bolt-lightning)
-The font is [Asap Condensed](https://fonts.google.com/specimen/Asap+Condensed)
+The font is [Asap Condensed](https://fonts.google.com/specimen/Asap+Condensed) -->
 
