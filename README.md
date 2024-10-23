@@ -40,6 +40,11 @@ I recommend placing the MIDAS price entities inside a "Combine the state of seve
 * If you ever change your electricity plan, like moving from one time-of-use plan to another or buying an electric vehicle or solar panels, placing your price sensors inside a helper will let you keep your energy dashboard history and replace the source sensor when your plan updates.
 * Your electricity company can update your RIN at any time even if the amount you actually pay stays the same. If that happens, you'll need to update which RINs this integration provides which may cause the loss of the old rate's data.
 
+## Resetting your MIDAS account details
+While there is no website for creating an account, there appears to be pages for a forgotten username and for resetting your password. These pages seem to be from the internal MIDAS portal, so if they get disabled or stop working please raise an issue.
+* Forgot Username: https://midasweb.energy.ca.gov/Pages/AccountMaint/ForgotUsername
+* Forgot Password: https://midasweb.energy.ca.gov/Pages/AccountMaint/ForgotPassword
+
 ## Contributions are welcome!
 
 If you want to contribute to this please read the [Contribution guidelines](CONTRIBUTING.md)

@@ -36,6 +36,9 @@
                 "python.defaultInterpreterPath": "/usr/local/bin/python",
                 "[python]": {
                     "editor.defaultFormatter": "charliermarsh.ruff"
+                },
+                "[markdown]": {
+                    "files.trimTrailingWhitespace": false //2 spaces at the eol are newline
                 }
             }
         }

@@ -19,7 +19,7 @@
                 },
                 "data_description": {
                     "username": "The username for the account being created. Must be globally unique and is not case sensitive.",
-                    "password": "The password for the account being created. USE A UNIQUE PASSWORD, IT CANNOT BE CHANGED. 15 or more characters, requires an uppercase and lowercase letter, a number, and a special character.",
+                    "password": "The password for the account being created. Use a unique password. 15 or more characters, requires an uppercase and lowercase letter, a number, and a special character.",
                     "email": "The email for the account being created. Has to be able to receive an email with an activation link.",
                     "name": "The name of the user for the account being created. Not used for anything but is required by the API."
                 }
@@ -30,10 +30,14 @@
             },
             "auth": {
                 "title": "MIDAS Authentication",
-                "description": "Please enter your MIDAS username and password.",
+                "description": "Please enter your MIDAS username and password. This is not your electricity account.",
                 "data": {
                     "username": "Username",
                     "password": "Password"
+                },
+                "data_description": {
+                    "username": "Forgot username? https://midasweb.energy.ca.gov/Pages/AccountMaint/ForgotUsername",
+                    "password": "Forgot password? https://midasweb.energy.ca.gov/Pages/AccountMaint/ForgotPassword"
                 }
             },
             "options": {
