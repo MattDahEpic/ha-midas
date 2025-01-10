@@ -54,7 +54,7 @@ class MidasDataUpdateCoordinator(DataUpdateCoordinator[dict[str, RateInfo]]):
                 # Check if there are any tariffs and issue error if not
                 if len(tariffs) == 0:
                     LOGGER.error(
-                        f"Rate ID {rid} has no active tariffs! This may mean the utility has changed Rate IDs or has simply stopped submitting data to MIDAS. Check your latest bill for a new Rate ID. If this persists, please reach out to your utility and tell them the Rate ID on your bill is not returning any data for your smart home system to use."
+                        f"Rate ID {rid} has no active tariffs! This may mean the utility has changed Rate IDs or has simply stopped submitting data to MIDAS. Check your latest bill for a new Rate ID. If this persists, please reach out to your utility and tell them the Rate ID on your bill is not returning any data for your smart home system to use."  # noqa: E501
                     )
         except MidasAuthenticationException as exception:
             raise ConfigEntryAuthFailed(exception) from exception

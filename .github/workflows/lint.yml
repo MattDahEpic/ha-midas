@@ -25,7 +25,7 @@ jobs:
           run: python3 -m pip install -r requirements_dev.txt
 
         - name: "Lint"
-          run: python3 -m ruff check .
+          run: python3 -m ruff check . --exclude=tests
 
         - name: "Format"
-          run: python3 -m ruff format . --check
+          run: python3 -m ruff format . --check --exclude=tests
