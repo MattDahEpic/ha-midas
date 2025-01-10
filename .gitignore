@@ -9,6 +9,7 @@ __pycache__
 # misc
 .coverage
 coverage.xml
+htmlcov/*
 .ruff_cache
 
 
