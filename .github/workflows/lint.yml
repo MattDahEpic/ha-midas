@@ -20,8 +20,6 @@ jobs:
           uses: actions/setup-python@v5.3.0
           with:
             python-version: "3.12"
-            cache: "pip"
-            cache-dependency-path: "${{ github.action_path }}/requirements_dev.txt"
 
         - name: "Install requirements"
           run: python3 -m pip install -r requirements_dev.txt
