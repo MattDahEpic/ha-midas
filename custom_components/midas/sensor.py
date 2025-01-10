@@ -225,7 +225,9 @@ class MidasPriceSensor(CoordinatorEntity[MidasDataUpdateCoordinator], SensorEnti
         """Return the native value of the sensor."""
         rate = self.coordinator.data[self._rate_id]
         tariffs = self.entity_description.tariffs_fn(rate)
-        # TODO check if tariff list contains anything
+        if len(tariffs) == 0:
+            # No tariffs! Logging for this event is handled by the coordinator.
+            return None
         tariff = tariffs[0]
         return self.entity_description.value_fn(rate, tariff)
 
@@ -234,7 +236,9 @@ class MidasPriceSensor(CoordinatorEntity[MidasDataUpdateCoordinator], SensorEnti
         """Extra data for the sensor."""
         rate = self.coordinator.data[self._rate_id]
         tariffs = self.entity_description.tariffs_fn(rate)
-        # TODO check if tariff list contains anything
+        if len(tariffs) == 0:
+            # No tariffs! Logging for this event is handled by the coordinator.
+            return None
         tariff = tariffs[0]
         return {
             DATA_RATE_NAME: rate.RateName,

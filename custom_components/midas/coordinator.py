@@ -50,7 +50,12 @@ class MidasDataUpdateCoordinator(DataUpdateCoordinator[dict[str, RateInfo]]):
                 data[rid] = await self._client.async_get_rate_data(rid)
                 # Call GetCurrentTariffs to cache parsed start and end times
                 # Makes getting the active tariffs for each sensor much faster
-                data[rid].GetCurrentTariffs()
+                tariffs = data[rid].GetCurrentTariffs()
+                # Check if there are any tariffs and issue error if not
+                if len(tariffs) == 0:
+                    LOGGER.error(
+                        f"Rate ID {rid} has no active tariffs! This may mean the utility has changed Rate IDs or has simply stopped submitting data to MIDAS. Check your latest bill for a new Rate ID. If this persists, please reach out to your utility and tell them the Rate ID on your bill is not returning any data for your smart home system to use."
+                    )
         except MidasAuthenticationException as exception:
             raise ConfigEntryAuthFailed(exception) from exception
         except MidasException as exception:
