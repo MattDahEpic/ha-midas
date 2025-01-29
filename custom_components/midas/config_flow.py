@@ -225,7 +225,7 @@ class MidasFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     def _test_rateids(self, rate_ids: list[str]) -> bool:
         """Test a list of rate ids to ensure they are valid."""
         for rid in rate_ids:
-            if re.match("^[A-Z]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$", rid) is None:
+            if re.match("^[A-Z]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{3,4}$", rid) is None:
                 return True
         return False
 
