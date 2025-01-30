@@ -26,8 +26,8 @@ class MidasDataUpdateCoordinator(DataUpdateCoordinator[dict[str, RateInfo]]):
     """Class to manage fetching data from the API."""
 
     config_entry: IntegrationMidasConfigEntry
-    cached_data: dict[str, RateInfo] = {}
-    last_update_time: datetime | None = None
+    cached_data: dict[str, RateInfo]
+    last_update_time: datetime | None
 
     def __init__(
         self,
@@ -36,6 +36,8 @@ class MidasDataUpdateCoordinator(DataUpdateCoordinator[dict[str, RateInfo]]):
     ) -> None:
         """Initialize."""
         self._client = client
+        self.cached_data = {}
+        self.last_update_time = None
 
         super().__init__(
             hass=hass,
@@ -48,7 +50,7 @@ class MidasDataUpdateCoordinator(DataUpdateCoordinator[dict[str, RateInfo]]):
         )
 
     async def _async_update_data(self) -> Any:
-        """"""
+        """Return cached data, updating it if absent or stale."""
         if len(self.cached_data) == 0 or self.last_update_time is None:
             # Update the cached data if there is none
             await self._async_update_cached_data()
