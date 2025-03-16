@@ -1,5 +1,6 @@
 # MIDAS (California Energy Prices)
-![MIDAS integration logo](https://brands.home-assistant.io/midas/logo.png)
+![MIDAS integration logo](https://brands.home-assistant.io/midas/logo.png)  
+**This project is not endorsed or approved by the California Energy Commission.**
 
 Custom integration to get the current electricity price and other data for many California electric bills from the California energy regulator's electricity price API MIDAS.
 
