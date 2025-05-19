@@ -1,5 +1,5 @@
 colorlog==6.9.0
 homeassistant==2024.12.0
 pip>=21.3.1
-ruff==0.11.6
+ruff==0.11.10
 california-midasapi>=0.0.8
