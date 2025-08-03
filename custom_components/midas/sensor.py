@@ -248,3 +248,8 @@ class MidasPriceSensor(CoordinatorEntity[MidasDataUpdateCoordinator], SensorEnti
             DATA_START_TIME: tariff.GetStart(),
             DATA_END_TIME: tariff.GetEnd(),
         }
+
+    @property
+    def available(self) -> bool:
+        """Returns if the sensor is available."""
+        return super().available and (self.native_value is not None)
