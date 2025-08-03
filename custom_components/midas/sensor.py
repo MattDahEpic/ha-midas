@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any
 from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
 from homeassistant.components.sensor.const import SensorDeviceClass
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
+from homeassistant.helpers.event import async_track_point_in_time
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import ATTRIBUTION, DOMAIN
@@ -19,7 +20,7 @@ if TYPE_CHECKING:
     from decimal import Decimal
 
     from california_midasapi.types import RateInfo, ValueInfoItem
-    from homeassistant.core import HomeAssistant
+    from homeassistant.core import CALLBACK_TYPE, HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
     from homeassistant.helpers.typing import StateType
 
@@ -31,16 +32,17 @@ DATA_RATE_URL = "rate_url"
 DATA_TARIFF_NAME = "tariff_name"
 DATA_START_TIME = "start_time"
 DATA_END_TIME = "end_time"
+DATA_UPDATE_LOOP_NEXT_TIME = "update_loop_next_time"
 
 
 @dataclass(frozen=True, kw_only=True)
 class MidasSensorEntityDescription(SensorEntityDescription):
     """Describes MIDAS sensors."""
 
-    tariffs_fn: Callable[[RateInfo], list[ValueInfoItem]] = (
-        lambda rate: rate.GetCurrentTariffs()
-    )
-    """Function to get the current tariffs."""
+    offset_fn: Callable[[RateInfo], timedelta] = lambda _: timedelta()
+    """Function to get the offset from the current time this sensor applies to.
+
+    Used in `rate.GetActiveTariffs()` to get the tariff to pass into `value_fn`."""
 
     value_fn: Callable[
         [RateInfo, ValueInfoItem], StateType | date | datetime | Decimal
@@ -91,18 +93,14 @@ SENSOR_DESCRIPTIONS: tuple[MidasSensorEntityDescription, ...] = (
         icon="mdi:meter-electric",
         native_unit_of_measurement="USD/kWh",
         suggested_display_precision=5,
-        tariffs_fn=lambda rate: rate.GetActiveTariffs(
-            datetime.now() + timedelta(minutes=15)  # noqa: DTZ005
-        ),
+        offset_fn=lambda _: timedelta(minutes=15),
     ),
     MidasSensorEntityDescription(
         key="15min_tariff_name",
         translation_key="15min_tariff_name",
         icon="mdi:text",
         entity_registry_enabled_default=False,
-        tariffs_fn=lambda rate: rate.GetActiveTariffs(
-            datetime.now() + timedelta(minutes=15)  # noqa: DTZ005
-        ),
+        offset_fn=lambda _: timedelta(minutes=15),
         value_fn=lambda _, tariff: tariff.ValueName,
     ),
     MidasSensorEntityDescription(
@@ -111,9 +109,7 @@ SENSOR_DESCRIPTIONS: tuple[MidasSensorEntityDescription, ...] = (
         icon="mdi:clock-start",
         device_class=SensorDeviceClass.TIMESTAMP,
         entity_registry_enabled_default=False,
-        tariffs_fn=lambda rate: rate.GetActiveTariffs(
-            datetime.now() + timedelta(minutes=15)  # noqa: DTZ005
-        ),
+        offset_fn=lambda _: timedelta(minutes=15),
         value_fn=lambda _, tariff: tariff.GetStart(),
     ),
     MidasSensorEntityDescription(
@@ -122,9 +118,7 @@ SENSOR_DESCRIPTIONS: tuple[MidasSensorEntityDescription, ...] = (
         icon="mdi:clock-end",
         device_class=SensorDeviceClass.TIMESTAMP,
         entity_registry_enabled_default=False,
-        tariffs_fn=lambda rate: rate.GetActiveTariffs(
-            datetime.now() + timedelta(minutes=15)  # noqa: DTZ005
-        ),
+        offset_fn=lambda _: timedelta(minutes=15),
         value_fn=lambda _, tariff: tariff.GetEnd(),
     ),
     MidasSensorEntityDescription(
@@ -133,18 +127,14 @@ SENSOR_DESCRIPTIONS: tuple[MidasSensorEntityDescription, ...] = (
         icon="mdi:meter-electric",
         native_unit_of_measurement="USD/kWh",
         suggested_display_precision=5,
-        tariffs_fn=lambda rate: rate.GetActiveTariffs(
-            datetime.now() + timedelta(hours=1)  # noqa: DTZ005
-        ),
+        offset_fn=lambda _: timedelta(hours=1),
     ),
     MidasSensorEntityDescription(
         key="1hour_tariff_name",
         translation_key="1hour_tariff_name",
         icon="mdi:text",
         entity_registry_enabled_default=False,
-        tariffs_fn=lambda rate: rate.GetActiveTariffs(
-            datetime.now() + timedelta(hours=1)  # noqa: DTZ005
-        ),
+        offset_fn=lambda _: timedelta(hours=1),
         value_fn=lambda _, tariff: tariff.ValueName,
     ),
     MidasSensorEntityDescription(
@@ -153,9 +143,7 @@ SENSOR_DESCRIPTIONS: tuple[MidasSensorEntityDescription, ...] = (
         icon="mdi:clock-start",
         device_class=SensorDeviceClass.TIMESTAMP,
         entity_registry_enabled_default=False,
-        tariffs_fn=lambda rate: rate.GetActiveTariffs(
-            datetime.now() + timedelta(hours=1)  # noqa: DTZ005
-        ),
+        offset_fn=lambda _: timedelta(hours=1),
         value_fn=lambda _, tariff: tariff.GetStart(),
     ),
     MidasSensorEntityDescription(
@@ -164,9 +152,7 @@ SENSOR_DESCRIPTIONS: tuple[MidasSensorEntityDescription, ...] = (
         icon="mdi:clock-end",
         device_class=SensorDeviceClass.TIMESTAMP,
         entity_registry_enabled_default=False,
-        tariffs_fn=lambda rate: rate.GetActiveTariffs(
-            datetime.now() + timedelta(hours=1)  # noqa: DTZ005
-        ),
+        offset_fn=lambda _: timedelta(hours=1),
         value_fn=lambda _, tariff: tariff.GetEnd(),
     ),
 )
@@ -197,6 +183,9 @@ class MidasPriceSensor(CoordinatorEntity[MidasDataUpdateCoordinator], SensorEnti
     _attr_has_entity_name = True
     _attr_attribution = ATTRIBUTION
 
+    _update_loop_callback_removal_callback: CALLBACK_TYPE
+    _update_loop_next_time: datetime | None = None
+
     entity_description: MidasSensorEntityDescription
 
     def __init__(
@@ -220,11 +209,44 @@ class MidasPriceSensor(CoordinatorEntity[MidasDataUpdateCoordinator], SensorEnti
             entry_type=DeviceEntryType.SERVICE,
         )
 
+    async def async_added_to_hass(self) -> None:
+        """Callback for initial sensor creation, starts internal update loop."""  # noqa: D401
+        await super().async_added_to_hass()
+        # Start our own internal update loop so we update right on the tariff changeover
+        await self._async_update_loop(datetime.now())  # noqa: DTZ005
+        # Cancel the update loop on the destruction of this sensor
+        self.async_on_remove(self._update_loop_callback_removal_callback)
+
+    async def _async_update_loop(self, now: datetime) -> None:
+        """Update the current sensor and schedules this function to run again at the beginning of the next tariff."""  # noqa: E501
+        # Update this sensor
+        self.async_write_ha_state()
+
+        # Schedule the next update right after the end of the current tariff
+        rate = self.coordinator.data[self._rate_id]
+        offset = self.entity_description.offset_fn(rate)
+        tariffs = rate.GetActiveTariffs(datetime.now() + offset)  # noqa: DTZ005
+
+        next_update = now + timedelta(hours=1)  # failsafe hourly update for no tariffs
+        if len(tariffs) > 0:
+            # add 1 second to get to the first second of the next tariff
+            # we want the 15 minute sensor to update 15 minutes before the end of the
+            #   tariff so subtract the offset
+            # the hour sensor will already be on the end of the next tariff so
+            #   subtracting an hour from it will still be an hour from now
+            next_update = (tariffs[0].GetEnd() + timedelta(seconds=1)) - offset
+        self._update_loop_callback_removal_callback = async_track_point_in_time(
+            self.hass, self._async_update_loop, next_update
+        )
+        self._update_loop_next_time = next_update
+        self.async_write_ha_state()  # Update again to get next loop attribute updated
+
     @property
     def native_value(self) -> StateType | date | datetime | Decimal:
         """Return the native value of the sensor."""
         rate = self.coordinator.data[self._rate_id]
-        tariffs = self.entity_description.tariffs_fn(rate)
+        offset = self.entity_description.offset_fn(rate)
+        tariffs = rate.GetActiveTariffs(datetime.now() + offset)  # noqa: DTZ005
         if len(tariffs) == 0:
             # No tariffs! Logging for this event is handled by the coordinator.
             return None
@@ -235,7 +257,8 @@ class MidasPriceSensor(CoordinatorEntity[MidasDataUpdateCoordinator], SensorEnti
     def extra_state_attributes(self) -> dict[str, Any] | None:
         """Extra data for the sensor."""
         rate = self.coordinator.data[self._rate_id]
-        tariffs = self.entity_description.tariffs_fn(rate)
+        offset = self.entity_description.offset_fn(rate)
+        tariffs = rate.GetActiveTariffs(datetime.now() + offset)  # noqa: DTZ005
         if len(tariffs) == 0:
             # No tariffs! Logging for this event is handled by the coordinator.
             return None
@@ -247,6 +270,7 @@ class MidasPriceSensor(CoordinatorEntity[MidasDataUpdateCoordinator], SensorEnti
             DATA_TARIFF_NAME: tariff.ValueName,
             DATA_START_TIME: tariff.GetStart(),
             DATA_END_TIME: tariff.GetEnd(),
+            DATA_UPDATE_LOOP_NEXT_TIME: self._update_loop_next_time,
         }
 
     @property

@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
-from typing import TYPE_CHECKING, Any
+from datetime import timedelta
+from typing import TYPE_CHECKING
 
 from california_midasapi.exception import MidasAuthenticationException, MidasException
 from california_midasapi.types import RateInfo
@@ -26,8 +26,6 @@ class MidasDataUpdateCoordinator(DataUpdateCoordinator[dict[str, RateInfo]]):
     """Class to manage fetching data from the API."""
 
     config_entry: IntegrationMidasConfigEntry
-    cached_data: dict[str, RateInfo]
-    last_update_time: datetime | None
 
     def __init__(
         self,
@@ -36,46 +34,35 @@ class MidasDataUpdateCoordinator(DataUpdateCoordinator[dict[str, RateInfo]]):
     ) -> None:
         """Initialize."""
         self._client = client
-        self.cached_data = {}
-        self.last_update_time = None
 
         super().__init__(
             hass=hass,
             logger=LOGGER,
             name=DOMAIN,
-            # Have the coordinator update the entities every minute,
-            # but we only get the real data at startup and every hour
-            update_interval=timedelta(seconds=60),
+            # Only get new data from the server at startup and every hour
+            update_interval=timedelta(hours=1),
             always_update=True,
         )
 
-    async def _async_update_data(self) -> Any:
-        """Return cached data, updating it if absent or stale."""
-        if len(self.cached_data) == 0 or self.last_update_time is None:
-            # Update the cached data if there is none
-            await self._async_update_cached_data()
-        if datetime.now() - self.last_update_time > timedelta(minutes=60):  # type: ignore None bc last update time is not None here # noqa: DTZ005
-            # Update again if we haven't updated in an hour
-            await self._async_update_cached_data()
-
-        return self.cached_data
-
-    async def _async_update_cached_data(self) -> None:
-        """Update the cached data."""
-        self.cached_data = {}
+    async def _async_update_data(self) -> dict[str, RateInfo]:
+        """Get the newsest set of rates."""
+        data: dict[str, RateInfo] = {}
         try:
             for rid in self.config_entry.runtime_data.rate_ids:
-                self.cached_data[rid] = await self._client.async_get_rate_data(rid)
+                data[rid] = await self._client.async_get_rate_data(rid)
                 # Call GetCurrentTariffs to cache parsed start and end times
                 # Makes getting the active tariffs for each sensor much faster
-                tariffs = self.cached_data[rid].GetCurrentTariffs()
+                tariffs = data[rid].GetCurrentTariffs()
                 # Check if there are any tariffs and issue error if not
                 if len(tariffs) == 0:
                     LOGGER.error(
                         f"Rate ID {rid} has no active tariffs! This may mean the utility has changed Rate IDs or has simply stopped submitting data to MIDAS. Check your latest bill for a new Rate ID. If this persists, please reach out to your utility and tell them the Rate ID on your bill is not returning any data for your smart home system to use."  # noqa: E501
                     )
-            self.last_update_time = datetime.now()  # noqa: DTZ005
         except MidasAuthenticationException as exception:
             raise ConfigEntryAuthFailed(exception) from exception
         except MidasException as exception:
             raise UpdateFailed(exception) from exception
+        else:
+            # Update sensors immediately when we get new data
+            self.async_update_listeners()
+            return data
