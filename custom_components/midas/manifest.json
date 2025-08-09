@@ -9,7 +9,7 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/MattDahEpic/ha-midas/issues",
   "requirements": [
-    "california-midasapi==0.*"
+    "california-midasapi==1.*"
   ],
   "version": "0.3.0"
 }
