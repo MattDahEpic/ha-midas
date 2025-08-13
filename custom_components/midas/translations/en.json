@@ -114,7 +114,7 @@
         }
     },
     "issues": {
-        "no_tarrifs": {
+        "no_tariffs": {
             "title": "RIN {rid} has no active tariffs",
             "description": "This may mean the utility has changed RINs or has simply stopped submitting data to MIDAS.\nCheck your latest bill for a new RIN. If this persists, please reach out to your utility and tell them the RIN on your bill is not returning any data for your smart home system to use.\nIf you need to change the RIN, you can Reconfigure this integration to add and remove RINs."
         }
