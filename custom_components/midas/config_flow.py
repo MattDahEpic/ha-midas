@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING, Any
 
-from california_midasapi.authentication import Midas as MidasAuth
+from california_midasapi import Midas
 from california_midasapi.exception import (
     MidasAuthenticationException,
     MidasCommunicationException,
@@ -15,6 +15,7 @@ from california_midasapi.exception import (
 from homeassistant import config_entries, data_entry_flow
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import IntegrationMidasApiClient
 from .const import (
@@ -78,8 +79,12 @@ class MidasFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
             if _errors == {}:  # No errors
                 try:
-                    await self.hass.async_add_executor_job(
-                        MidasAuth.register, username, password, email, name
+                    await Midas.register(
+                        async_get_clientsession(self.hass),
+                        username,
+                        password,
+                        email,
+                        name,
                     )
                 except MidasRegistrationException as exception:
                     LOGGER.warning(exception)
