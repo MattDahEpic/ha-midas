@@ -4,4 +4,5 @@ ulid_transform
 pytest
 coverage
 pytest-asyncio
+pytest-aiohttp
 pytest-homeassistant-custom-component

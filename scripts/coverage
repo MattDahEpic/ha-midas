@@ -7,3 +7,7 @@ echo "Starting coverage report"
 coverage report
 echo "Starting coverage html"
 coverage html
+
+echo "Serving coverage report..."
+cd htmlcov/
+python -m http.server 8000
