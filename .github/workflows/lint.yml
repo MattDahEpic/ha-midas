@@ -22,7 +22,7 @@ jobs:
             python-version: "3.12"
 
         - name: "Install requirements"
-          run: python3 -m pip install -r requirements_dev.txt
+          run: python3 -m pip install .[dev]
 
         - name: "Lint"
           run: python3 -m ruff check . --exclude=tests
