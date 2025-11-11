@@ -1,0 +1,6 @@
+-r requirements_dev.txt
+pytest
+coverage
+pytest-asyncio
+pytest-aiohttp
+pytest-homeassistant-custom-component
