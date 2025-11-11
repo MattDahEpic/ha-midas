@@ -129,25 +129,36 @@ class MidasFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         """Collect username and password."""
         _errors = {}
         if user_input is not None:
-            try:
-                await self._test_credentials(
-                    hass=self.hass,
-                    username=user_input[CONF_USERNAME],
-                    password=user_input[CONF_PASSWORD],
-                )
-            except MidasAuthenticationException as exception:
-                LOGGER.warning(exception)
+            username = user_input[CONF_USERNAME]
+            password = user_input[CONF_PASSWORD]
+            if (
+                username is None
+                or len(username) == 0
+                or password is None
+                or len(password) == 0
+            ):
                 _errors["base"] = "auth"
-            except MidasCommunicationException as exception:
-                LOGGER.error(exception)
-                _errors["base"] = "connection"
-            except MidasException as exception:
-                LOGGER.exception(exception)
-                _errors["base"] = "unknown"
-            else:
-                # Move onto next step
-                self.credential_data = user_input  # Store info to use in next step
-                return await self.async_step_options()  # Start the next step
+
+            if _errors == {}:  # No errors
+                try:
+                    await self._test_credentials(
+                        hass=self.hass,
+                        username=username,
+                        password=password,
+                    )
+                except MidasAuthenticationException as exception:
+                    LOGGER.warning(exception)
+                    _errors["base"] = "auth"
+                except MidasCommunicationException as exception:
+                    LOGGER.error(exception)
+                    _errors["base"] = "connection"
+                except MidasException as exception:
+                    LOGGER.exception(exception)
+                    _errors["base"] = "unknown"
+                else:
+                    # Move onto next step
+                    self.credential_data = user_input  # Store info to use in next step
+                    return await self.async_step_options()  # Start the next step
 
         return self.async_show_form(
             step_id="auth",
