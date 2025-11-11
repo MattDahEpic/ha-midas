@@ -22,7 +22,8 @@
                 "github.vscode-pull-request-github",
                 "ms-python.python",
                 "ms-python.vscode-pylance",
-                "ryanluker.vscode-coverage-gutters"
+                "ryanluker.vscode-coverage-gutters",
+                "tamasfe.even-better-toml"
             ],
             "settings": {
                 "files.eol": "\n",
