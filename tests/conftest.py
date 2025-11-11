@@ -2,7 +2,7 @@
 
 import pytest
 
-pytest_plugins = ["aiohttp.pytest_plugin"]
+pytest_plugins = ["aiohttp.pytest_plugin"]  # makes AiohttpClientMocker work
 
 
 @pytest.fixture(autouse=True)
