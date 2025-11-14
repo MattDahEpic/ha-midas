@@ -3,4 +3,4 @@ pytest
 coverage
 pytest-asyncio
 pytest-aiohttp
-pytest-homeassistant-custom-component
+pytest-homeassistant-custom-component>=0.13.252  # Includes _run_safe_shutdown_loop thread fix
