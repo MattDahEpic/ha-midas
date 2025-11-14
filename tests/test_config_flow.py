@@ -20,7 +20,7 @@ from custom_components.midas.const import (
 )
 
 
-async def test_show_form(hass: HomeAssistant) -> None:
+async def test_config_show_form(hass: HomeAssistant) -> None:
     """Test that the first step menu is served when there's no input."""
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": SOURCE_USER}
@@ -30,7 +30,7 @@ async def test_show_form(hass: HomeAssistant) -> None:
     assert result["step_id"] == SOURCE_USER
 
 
-async def test_user_config_create_account_clientside_validation(
+async def test_config_create_account_clientside_validation(
     hass: HomeAssistant,
 ) -> None:
     """Test that the user gets an error when not providing any credentials."""
@@ -61,7 +61,7 @@ async def test_user_config_create_account_clientside_validation(
     assert result["step_id"] == "register"
 
 
-async def test_user_config_create_account_invalid_credentials(
+async def test_config_create_account_invalid_credentials(
     hass: HomeAssistant,
     aioclient_mock: AiohttpClientMocker,
 ) -> None:
@@ -101,7 +101,7 @@ async def test_user_config_create_account_invalid_credentials(
     assert result["step_id"] == "register"
 
 
-async def test_user_config_create_account_valid_credentials(
+async def test_config_create_account_valid_credentials(
     hass: HomeAssistant,
     aioclient_mock: AiohttpClientMocker,
 ) -> None:
@@ -138,6 +138,133 @@ async def test_user_config_create_account_valid_credentials(
     assert result["step_id"] == "register_result"
 
 
-# TODO test existing account
-# TODO test valid and invalid rins
-# TODO test reconfigure
+async def test_config_existing_account_clientside_validation(
+    hass: HomeAssistant,
+) -> None:
+    """Test that providing no account details gives an error."""
+    # have account? menu
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_USER}
+    )
+    assert result["type"] == FlowResultType.MENU
+    assert result["step_id"] == SOURCE_USER
+    # login
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], user_input={"next_step_id": "auth"}
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "auth"
+    # test invalid details
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        user_input={
+            CONF_USERNAME: "",
+            CONF_PASSWORD: "",
+        },
+    )
+    assert result["errors"].get("base") == "auth"
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "auth"
+
+
+async def test_config_existing_account_invalid_credentials(
+    hass: HomeAssistant,
+    aioclient_mock: AiohttpClientMocker,
+) -> None:
+    """Test that providing invalid account details gives an error."""
+    # have account? menu
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_USER}
+    )
+    assert result["type"] == FlowResultType.MENU
+    assert result["step_id"] == SOURCE_USER
+    # login
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], user_input={"next_step_id": "auth"}
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "auth"
+    # test invalid details
+    error_text = "Invalid Username/Password combination."
+    aioclient_mock.get(
+        "https://midasapi.energy.ca.gov/api/token",
+        status=HTTPStatus.UNAUTHORIZED,
+        text=error_text,
+        headers={"Content-Type": "text/plain; charset=utf-8"},
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        user_input={
+            CONF_USERNAME: "test",
+            CONF_PASSWORD: "test",
+        },
+    )
+    assert result["errors"].get("base") == "auth"
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "auth"
+
+
+async def test_config_existing_account_connection_error(
+    hass: HomeAssistant,
+    aioclient_mock: AiohttpClientMocker,
+) -> None:
+    """Test that the user gets a unique error message when a connection failure occurs while logging in."""  # noqa: E501
+    # have account? menu
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_USER}
+    )
+    assert result["type"] == FlowResultType.MENU
+    assert result["step_id"] == SOURCE_USER
+    # login
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], user_input={"next_step_id": "auth"}
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "auth"
+    # test invalid details
+    aioclient_mock.get("https://midasapi.energy.ca.gov/api/token", exc=TimeoutError())
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        user_input={
+            CONF_USERNAME: "test",
+            CONF_PASSWORD: "test",
+        },
+    )
+    assert result["errors"].get("base") == "connection"
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "auth"
+
+
+async def test_config_existing_account_valid_credentials(
+    hass: HomeAssistant,
+    aioclient_mock: AiohttpClientMocker,
+) -> None:
+    """Test that providing valid account details moves to the next step."""
+    # have account? menu
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_USER}
+    )
+    assert result["type"] == FlowResultType.MENU
+    assert result["step_id"] == SOURCE_USER
+    # login
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], user_input={"next_step_id": "auth"}
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "auth"
+    # test valid details
+    aioclient_mock.get(
+        "https://midasapi.energy.ca.gov/api/token",
+        status=HTTPStatus.OK,
+        text="Token issued and will expire in 10 minutes.",
+        headers={"Content-Type": "text/plain; charset=utf-8", "Token": "fake_token"},
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        user_input={
+            CONF_USERNAME: "test",
+            CONF_PASSWORD: "test",
+        },
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "options"
