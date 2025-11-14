@@ -6,6 +6,7 @@
 
 from http import HTTPStatus
 
+from aiohttp import ServerTimeoutError
 from homeassistant.config_entries import SOURCE_USER
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
@@ -222,7 +223,9 @@ async def test_config_existing_account_connection_error(
     assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == "auth"
     # test invalid details
-    aioclient_mock.get("https://midasapi.energy.ca.gov/api/token", exc=TimeoutError())
+    aioclient_mock.get(
+        "https://midasapi.energy.ca.gov/api/token", exc=ServerTimeoutError()
+    )
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
         user_input={
