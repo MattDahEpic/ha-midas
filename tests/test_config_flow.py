@@ -14,6 +14,7 @@ from homeassistant.data_entry_flow import FlowResultType
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
+from custom_components.midas.config_flow import MidasFlowHandler
 from custom_components.midas.const import (
     CONF_EMAIL,
     CONF_NAME,
@@ -140,6 +141,12 @@ async def test_config_create_account_valid_credentials(
     )
     assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == "register_result"
+    # click through the account link
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], user_input={"next_step_id": "auth"}
+    )
+    assert result["type"] == FlowResultType.FORM
+    assert result["step_id"] == "auth"
 
 
 async def test_config_existing_account_clientside_validation(
@@ -500,3 +507,19 @@ async def test_config_reconfigure_valid_rateids(
     assert updated_entry.data[CONF_RATEIDS] == ["TEST-TEST-TEST-NEW1"]
 
 
+async def test_rateid_validity_check() -> None:
+    """Test the internal rate id validity check."""
+    config_flow = MidasFlowHandler()
+
+    valid_ids = [
+        "USCA-PGXX-0400-0000",
+        "USCA-PGXX-0200-0000",
+        "USCA-SCSC-0400-0000",
+        "USCA-XXSF-0063-0000",
+        "USCA-SCSC-0500-0000",
+        "USCA-XXMB-0026-SCE",
+    ]
+    assert not config_flow._test_rateids(valid_ids)  # noqa: SLF001
+
+    invalid_ids = ["TEST-WRONG-FORMAT"]
+    assert config_flow._test_rateids(invalid_ids)  # noqa: SLF001
