@@ -67,6 +67,7 @@
             "connection": "Unable to connect to the server.",
             "unknown": "Unknown error occurred. Check the logs for more details.",
             "rateid_invalid": "Rate ID not in valid format (XXXX-XXXX-XXXX-XXXX)",
+            "rateids_missing": "At least one RIN is required.",
             "registration_invalid": "All fields are required."
         },
         "abort": {

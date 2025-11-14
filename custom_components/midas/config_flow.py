@@ -173,6 +173,9 @@ class MidasFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle the second step of the flow."""
         _errors = {}
         if user_input is not None:
+            if len(user_input[CONF_RATEIDS]) == 0:
+                _errors["base"] = "rateids_missing"
+
             if self._test_rateids(user_input[CONF_RATEIDS]):
                 _errors["base"] = "rateid_invalid"
 
@@ -201,6 +204,9 @@ class MidasFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             assert entry is not None
 
         if user_input is not None:
+            if len(user_input[CONF_RATEIDS]) == 0:
+                _errors["base"] = "rateids_missing"
+
             if self._test_rateids(user_input[CONF_RATEIDS]):
                 _errors["base"] = "rateid_invalid"
 
