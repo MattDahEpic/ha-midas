@@ -164,6 +164,10 @@ class MidasFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="auth",
             data_schema=CONFIG_SCHEMA_AUTH,
             errors=_errors,
+            description_placeholders={
+                "forgot_username_url": "https://midasweb.energy.ca.gov/Pages/AccountMaint/ForgotUsername",
+                "forgot_password_url": "https://midasweb.energy.ca.gov/Pages/AccountMaint/ForgotPassword",
+            },
         )
 
     async def async_step_options(
