@@ -1,6 +1,6 @@
 {
     "name": "MIDAS (California Energy Prices)",
     "hide_default_branch": true,
-    "homeassistant": "2025.6.1",
+    "homeassistant": "2026.1.0",
     "render_readme": true
 }
