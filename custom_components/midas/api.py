@@ -32,7 +32,7 @@ class IntegrationMidasApiClient:
 
     async def async_get_historical_rate_data(self, rate_id: str) -> RateInfo:
         """Get historical data from the API."""
-        now = datetime.now()
+        now = datetime.now()  # noqa: DTZ005
         yesterday = now - timedelta(days=1)
         tomorrow = now + timedelta(days=1)
         return await self._midas.GetHistoricalRateInfo(rate_id, yesterday, tomorrow)
