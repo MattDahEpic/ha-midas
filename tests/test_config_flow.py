@@ -22,12 +22,12 @@ from custom_components.midas.const import (
 
 
 async def test_config_show_form(hass: HomeAssistant) -> None:
-    """Test that the first step menu is served when there's no input."""
+    """Test that the first step form is served when there's no input."""
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": SOURCE_USER}
     )
 
-    assert result["type"] is FlowResultType.MENU
+    assert result["type"] is FlowResultType.FORM
     assert result["step_id"] == SOURCE_USER
 
 
@@ -40,30 +40,8 @@ async def test_config_rateids_no_rateids(
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": SOURCE_USER}
     )
-    assert result["type"] == FlowResultType.MENU
+    assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == SOURCE_USER
-    # login
-    result = await hass.config_entries.flow.async_configure(
-        result["flow_id"], user_input={"next_step_id": "auth"}
-    )
-    assert result["type"] == FlowResultType.FORM
-    assert result["step_id"] == "auth"
-    # account credentials
-    aioclient_mock.get(
-        "https://midasapi.energy.ca.gov/api/token",
-        status=HTTPStatus.OK,
-        text="Token issued and will expire in 10 minutes.",
-        headers={"Content-Type": "text/plain; charset=utf-8", "Token": "fake_token"},
-    )
-    result = await hass.config_entries.flow.async_configure(
-        result["flow_id"],
-        user_input={
-            CONF_USERNAME: "test",
-            CONF_PASSWORD: "test",
-        },
-    )
-    assert result["type"] == FlowResultType.FORM
-    assert result["step_id"] == "options"
     # test empty rateids
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
@@ -73,7 +51,7 @@ async def test_config_rateids_no_rateids(
     )
     assert result["errors"].get("base") == "rateids_missing"
     assert result["type"] == FlowResultType.FORM
-    assert result["step_id"] == "options"
+    assert result["step_id"] == SOURCE_USER
 
 
 async def test_config_rateids_invalid_rateids(
@@ -85,30 +63,8 @@ async def test_config_rateids_invalid_rateids(
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": SOURCE_USER}
     )
-    assert result["type"] == FlowResultType.MENU
+    assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == SOURCE_USER
-    # login
-    result = await hass.config_entries.flow.async_configure(
-        result["flow_id"], user_input={"next_step_id": "auth"}
-    )
-    assert result["type"] == FlowResultType.FORM
-    assert result["step_id"] == "auth"
-    # account credentials
-    aioclient_mock.get(
-        "https://midasapi.energy.ca.gov/api/token",
-        status=HTTPStatus.OK,
-        text="Token issued and will expire in 10 minutes.",
-        headers={"Content-Type": "text/plain; charset=utf-8", "Token": "fake_token"},
-    )
-    result = await hass.config_entries.flow.async_configure(
-        result["flow_id"],
-        user_input={
-            CONF_USERNAME: "test",
-            CONF_PASSWORD: "test",
-        },
-    )
-    assert result["type"] == FlowResultType.FORM
-    assert result["step_id"] == "options"
     # test empty rateids
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
@@ -118,7 +74,7 @@ async def test_config_rateids_invalid_rateids(
     )
     assert result["errors"].get("base") == "rateid_invalid"
     assert result["type"] == FlowResultType.FORM
-    assert result["step_id"] == "options"
+    assert result["step_id"] == SOURCE_USER
 
 
 async def test_config_rateids_valid_rateids(
@@ -131,30 +87,8 @@ async def test_config_rateids_valid_rateids(
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": SOURCE_USER}
     )
-    assert result["type"] == FlowResultType.MENU
+    assert result["type"] == FlowResultType.FORM
     assert result["step_id"] == SOURCE_USER
-    # login
-    result = await hass.config_entries.flow.async_configure(
-        result["flow_id"], user_input={"next_step_id": "auth"}
-    )
-    assert result["type"] == FlowResultType.FORM
-    assert result["step_id"] == "auth"
-    # account credentials
-    aioclient_mock.get(
-        "https://midasapi.energy.ca.gov/api/token",
-        status=HTTPStatus.OK,
-        text="Token issued and will expire in 10 minutes.",
-        headers={"Content-Type": "text/plain; charset=utf-8", "Token": "fake_token"},
-    )
-    result = await hass.config_entries.flow.async_configure(
-        result["flow_id"],
-        user_input={
-            CONF_USERNAME: "test",
-            CONF_PASSWORD: "test",
-        },
-    )
-    assert result["type"] == FlowResultType.FORM
-    assert result["step_id"] == "options"
     # test empty rateids
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
@@ -163,9 +97,7 @@ async def test_config_rateids_valid_rateids(
         },
     )
     assert result["type"] == FlowResultType.CREATE_ENTRY
-    assert result["title"] == "MIDAS Account: test"
-    assert result["data"].get(CONF_USERNAME) == "test"
-    assert result["data"].get(CONF_PASSWORD) == "test"
+    assert result["title"] == "MIDAS"
     assert result["data"].get(CONF_RATEIDS) == ["TEST-TEST-TEST-TEST"]
     assert len(mock_setup_entry.mock_calls) == 1
 
@@ -250,8 +182,6 @@ async def test_config_reconfigure_valid_rateids(
     assert result["reason"] == "reconfigure_successful"
 
     updated_entry = hass.config_entries.async_get_entry(mock_config_entry.entry_id)
-    assert updated_entry.data[CONF_USERNAME] == "test"
-    assert updated_entry.data[CONF_PASSWORD] == "test"
     assert updated_entry.data[CONF_RATEIDS] == ["TEST-TEST-TEST-NEW1"]
 
 

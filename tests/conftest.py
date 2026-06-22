@@ -7,9 +7,7 @@ import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.midas.const import (
-    CONF_PASSWORD,
     CONF_RATEIDS,
-    CONF_USERNAME,
     DOMAIN,
 )
 
@@ -38,8 +36,6 @@ def mock_config_entry() -> MockConfigEntry:
         title="MIDAS Account: test",
         domain=DOMAIN,
         data={
-            CONF_USERNAME: "test",
-            CONF_PASSWORD: "test",
             CONF_RATEIDS: ["TEST-TEST-TEST-TEST"],
         },
     )
