@@ -46,7 +46,7 @@ class MidasSensorEntityDescription(SensorEntityDescription):
 
     value_fn: Callable[
         [RateInfo, ValueInfoItem], StateType | date | datetime | Decimal
-    ] = lambda _, tariff: tariff.value
+    ] = lambda _, tariff: tariff.Value
     """Function to get the value of the sensor.
     Receives the rate info and the current tariff."""
 
