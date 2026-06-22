@@ -5,13 +5,10 @@ from __future__ import annotations
 import re
 from typing import TYPE_CHECKING, Any
 
-from california_midasapi import Midas
 from homeassistant import config_entries, data_entry_flow
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .api import IntegrationMidasApiClient
 from .const import (
     CONF_RATEIDS,
     CONFIG_SCHEMA_OPTIONS,
@@ -20,9 +17,6 @@ from .const import (
     LOGGER,
 )
 from .sensor import SENSOR_DESCRIPTIONS
-
-if TYPE_CHECKING:
-    from homeassistant.core import HomeAssistant
 
 
 class MidasFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
@@ -46,7 +40,7 @@ class MidasFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             if _errors == {}:  # No errors
                 # Create entry with combined data
                 return self.async_create_entry(
-                    title=f"MIDAS",
+                    title="MIDAS",
                     data=user_input,
                 )
 

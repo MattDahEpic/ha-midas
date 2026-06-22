@@ -4,15 +4,12 @@
 # pyright: reportTypedDictNotRequiredAccess=false
 # ruff: noqa: S101
 
-from http import HTTPStatus
 from unittest.mock import AsyncMock
 
-from aiohttp import ServerTimeoutError
 from homeassistant.config_entries import SOURCE_RECONFIGURE, SOURCE_USER
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from pytest_homeassistant_custom_component.common import MockConfigEntry
-from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
 
 from custom_components.midas.config_flow import MidasFlowHandler
 from custom_components.midas.const import (
@@ -33,7 +30,6 @@ async def test_config_show_form(hass: HomeAssistant) -> None:
 
 async def test_config_rateids_no_rateids(
     hass: HomeAssistant,
-    aioclient_mock: AiohttpClientMocker,
 ) -> None:
     """Test that configuring requires at least one RIN."""
     # have account? menu
@@ -56,7 +52,6 @@ async def test_config_rateids_no_rateids(
 
 async def test_config_rateids_invalid_rateids(
     hass: HomeAssistant,
-    aioclient_mock: AiohttpClientMocker,
 ) -> None:
     """Test that providing invalid rateids gives an error."""
     # have account? menu
@@ -79,7 +74,6 @@ async def test_config_rateids_invalid_rateids(
 
 async def test_config_rateids_valid_rateids(
     hass: HomeAssistant,
-    aioclient_mock: AiohttpClientMocker,
     mock_setup_entry: AsyncMock,
 ) -> None:
     """Test that providing valid rateids completes the configuration."""
