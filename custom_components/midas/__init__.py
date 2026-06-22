@@ -11,9 +11,7 @@ from typing import TYPE_CHECKING
 
 from .api import IntegrationMidasApiClient
 from .const import (
-    CONF_PASSWORD,
     CONF_RATEIDS,
-    CONF_USERNAME,
     PLATFORMS,
 )
 from .coordinator import MidasDataUpdateCoordinator
@@ -35,8 +33,6 @@ async def async_setup_entry(
         hass=hass,
         client=IntegrationMidasApiClient(
             hass=hass,
-            username=entry.data[CONF_USERNAME],
-            password=entry.data[CONF_PASSWORD],
         ),
     )
     entry.runtime_data = IntegrationMidasData(
