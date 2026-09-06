@@ -14,6 +14,7 @@ ignore = [
     "COM812", # incompatible with formatter
     "ISC001", # incompatible with formatter
     "EXE002", # The file is executable but no shebang is present (my environment is weird i guess?)
+    "CPY001", # Don't need a copyright header in every file, the whole repo is MIT
 ]
 
 [lint.flake8-pytest-style]
