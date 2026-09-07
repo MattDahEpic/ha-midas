@@ -1,4 +1,4 @@
 colorlog==6.12.0
 homeassistant==2026.1.0
 ruff==0.16.6
-california-midasapi==2.0.1
+california-midasapi==2.1.1
